@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Newtonsoft.Json;
+using DesigneFinal;
 
 namespace DesigneFinal.View
 {
@@ -16,11 +17,14 @@ namespace DesigneFinal.View
         private string salleName;
         private bool isImageLoopRunning = false;
         private DispatcherTimer timer;
+        private object previousContent; // Nouvelle variable pour stocker la vue précédente
 
-        public SecondView(string salleName)
+        // Modification du constructeur pour accepter 'previousContent'
+        public SecondView(string salleName, object previousContent)
         {
             InitializeComponent();
             this.salleName = salleName;
+            this.previousContent = previousContent; // Stocker la vue précédente
             LoadImages(salleName);
 
             // Initialisation du timer pour l'heure et la date
@@ -121,9 +125,19 @@ namespace DesigneFinal.View
             }
         }
 
+        // Modification du bouton 'Retour' pour restaurer la vue précédente
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            // Retour à la vue d'accueil ou précédente
+            if (previousContent != null)
+            {
+                // Restaurer la vue précédente
+                ((Window)this.Parent).Content = previousContent; // Utilisation correcte pour changer le contenu de la fenêtre
+                                                                 // Ne pas réinitialiser previousContent, pour pouvoir revenir plusieurs fois
+            }
+            else
+            {
+                MessageBox.Show("Aucune page précédente trouvée.");
+            }
         }
     }
 }

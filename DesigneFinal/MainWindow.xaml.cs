@@ -21,6 +21,9 @@ namespace DesigneFinal
             LoadSalles();
         }
 
+        public object previousContent;
+
+
         public class Salle
         {
             public int Id { get; set; }
@@ -77,8 +80,11 @@ namespace DesigneFinal
                 return;
             }
 
-            // Navigate to SecondView with selectedSalle
-            SecondView secondView = new SecondView(selectedSalle);
+            // Stocker la vue actuelle avant de la remplacer
+            previousContent = this.Content;
+
+            // Naviguer vers SecondView avec selectedSalle et previousContent
+            SecondView secondView = new SecondView(selectedSalle, previousContent);
             this.Content = secondView;
         }
     }
