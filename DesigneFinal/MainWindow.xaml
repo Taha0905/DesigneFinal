@@ -1,0 +1,51 @@
+﻿<Window x:Class="DesigneFinal.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DesigneFinal"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" Background="#4744ba">
+    <Grid Margin="20" Background="#1E1E1E" >
+
+        <!-- Grid Row Definitions -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header Title -->
+        <TextBlock Grid.Row="0" Text="Smart Display Project" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                   FontSize="36" FontWeight="SemiBold" Foreground="#F5F5F5" Margin="0,20,0,20"/>
+
+        <!-- Logo Image -->
+        <Border Grid.Row="1" Background="Black" Margin="0,10,0,67" Grid.RowSpan="2">
+            <Image Source="Image/image.png" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" />
+        </Border>
+
+        <!-- 'Choose Your Room' Text -->
+        <TextBlock Grid.Row="2" Text="Choisissez votre salle :" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                   FontSize="24" FontWeight="Medium" Foreground="#C0C0C0" Margin="0,20"/>
+
+        <!-- ComboBox for Room Selection -->
+        <ComboBox Grid.Row="3" Name="salleComboBox" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                  Width="250" Height="40" FontSize="16" Background="#3B3B3B" Foreground="#FF2869A9" 
+                  BorderBrush="#F5F5F5" Padding="5" SelectionChanged="salleComboBox_SelectionChanged"/>
+
+        <!-- Connection Button with Rounded Corners -->
+        <Button Grid.Row="4" Name="validateButton" Content="Connexion" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                Width="150" Height="50" FontSize="18" Background="#4744ba" Foreground="White" BorderThickness="0" 
+                Margin="0,20" Cursor="Hand" Click="ValidateButton_Click">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}" CornerRadius="20" BorderThickness="0">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+    </Grid>
+</Window>
