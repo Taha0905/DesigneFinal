@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DesigneFinal"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" Background="#4744ba">
-    <Grid Margin="20" Background="#1E1E1E" >
+    <Grid Margin="10" Background="#1E1E1E" >
 
         <!-- Grid Row Definitions -->
         <Grid.RowDefinitions>

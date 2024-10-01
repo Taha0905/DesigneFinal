@@ -9,13 +9,18 @@
       Title="SecondView">
 
     <Grid Background="#F0F4F8">
-        
+
         <!-- Grid Row Definitions -->
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="6*"/>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
+
+        <!-- Main Image Display Area -->
+        <Border Grid.Row="1" CornerRadius="10" Background="White" Padding="10" Margin="10,10,574,10" BorderBrush="#ddd" BorderThickness="2">
+            <Image x:Name="imageControl1" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" />
+        </Border>
 
         <!-- Header with Date, Time and Home Button -->
         <Border Grid.Row="0" BorderBrush="#333" BorderThickness="2" CornerRadius="10" Padding="10" Background="White" Margin="10">
@@ -42,14 +47,53 @@
             </Grid>
         </Border>
 
+        <!-- Left Side: Information Panel with adjusted icon sizes and layout -->
+        <Border Grid.Row="1" Background="White" CornerRadius="10" BorderBrush="#ddd" BorderThickness="4" Padding="10" Margin="10,10,558,10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Température & Humidité Section -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,10,0,10">
+                    <TextBlock Text="💧" FontSize="30" VerticalAlignment="Center" Margin="5"/>
+                    <StackPanel Height="38">
+                        <TextBlock Text="Température : 15°C" FontWeight="Bold" FontSize="14" Foreground="#333"/>
+                        <TextBlock Text="Humidité : 20%" Foreground="#555"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Son Section -->
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,10,0,10">
+                    <TextBlock Text="🔊" FontSize="30" VerticalAlignment="Center" Margin="5"/>
+                    <StackPanel Height="39">
+                        <TextBlock Text="Son : 40dB" FontWeight="Bold" FontSize="14" Foreground="#333"/>
+                        <TextBlock Text="Niveau sonore" Foreground="#555"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Qualité de l'air Section -->
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,10">
+                    <TextBlock Text="🌫️" FontSize="30" VerticalAlignment="Center" Margin="5"/>
+                    <StackPanel Height="34">
+                        <TextBlock Text="Qualité d'air: Bonne" FontWeight="Bold" Foreground="#333" Height="20" Width="138" FontSize="14"/>
+                        <TextBlock Text="Particules fines : Faibles" Foreground="#555"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+
         <!-- Main Content Area (For Image Display) -->
-        <Border Grid.Row="1" CornerRadius="10" Background="White" Padding="10" Margin="10" BorderBrush="#ddd" BorderThickness="2">
+        <Border Grid.Row="1" CornerRadius="10" Background="White" Padding="10" Margin="257,10,10,10" BorderBrush="#ddd" BorderThickness="4">
             <Image x:Name="imageControl" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" />
         </Border>
 
         <!-- Footer Information Area -->
         <Border Grid.Row="2" BorderBrush="#333" BorderThickness="2" CornerRadius="10" Padding="10" Background="White" Margin="10">
+
         </Border>
-        <TextBlock Grid.Row="2" Name="TBinfo" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold" Foreground="#FFA1A1A1" Text="Informations à afficher ici" Height="23" Width="752" Margin="19,0,0,0" FontStyle="Italic" />
+        <TextBlock Grid.Row="2" Name="TBinfo" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold" Foreground="#FFA1A1A1" Text="Informations à afficher ici" FontStyle="Italic" Margin="21,0,0,0" />
     </Grid>
 </Page>
