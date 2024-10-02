@@ -9,6 +9,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Newtonsoft.Json;
 using DesigneFinal;
+using System.Windows.Media;
 
 namespace DesigneFinal.View
 {
@@ -17,7 +18,8 @@ namespace DesigneFinal.View
         private string salleName;
         private bool isImageLoopRunning = false;
         private DispatcherTimer timer;
-        private object previousContent; // Nouvelle variable pour stocker la vue précédente
+        private object previousContent; // Variable pour stocker la vue précédente
+        private int iterationCount = 0; // Compteur d'itérations
 
         // Modification du constructeur pour accepter 'previousContent'
         public SecondView(string salleName, object previousContent)
@@ -90,6 +92,11 @@ namespace DesigneFinal.View
         {
             while (isImageLoopRunning)
             {
+                // 1. Afficher la météo en premier
+                await DisplayMeteo();
+                await Task.Delay(5000); // Délai de 10 secondes pour la météo
+
+                // 2. Ensuite, afficher les images
                 foreach (var imageFileName in availableImages)
                 {
                     string imageUrl = $"{salleUrl}{imageFileName}";
@@ -113,7 +120,7 @@ namespace DesigneFinal.View
                                 }
                                 imageControl.Source = bitmap;
                             }
-                            await Task.Delay(5000); // Délai entre les images
+                            await Task.Delay(3000); // Délai de 10 secondes pour chaque image
                         }
                     }
                     catch (Exception ex)
@@ -122,6 +129,46 @@ namespace DesigneFinal.View
                         return;
                     }
                 }
+            }
+        }
+
+        // Méthode pour afficher la météo
+        private async Task DisplayMeteo()
+        {
+            try
+            {
+                // Créer une instance de la page météo
+                Meteo meteoPage = new Meteo();
+
+                // Récupérer les données météo pour Annecy
+                await meteoPage.GetMeteo("Annecy");
+
+                // Attendre quelques millisecondes pour s'assurer que les données sont bien appliquées au XAML
+                await Task.Delay(500);
+
+                // Forcer le calcul des dimensions de la page météo
+                meteoPage.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                meteoPage.Arrange(new Rect(0, 0, meteoPage.DesiredSize.Width, meteoPage.DesiredSize.Height));
+
+                // Vérifier si les dimensions sont valides avant de continuer
+                if (meteoPage.ActualWidth > 0 && meteoPage.ActualHeight > 0)
+                {
+                    // Convertir le contenu de la page météo en image à afficher dans imageControl
+                    RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int)meteoPage.ActualWidth, (int)meteoPage.ActualHeight, 96, 96, PixelFormats.Pbgra32);
+                    renderTargetBitmap.Render(meteoPage);
+                    imageControl.Source = renderTargetBitmap;
+                }
+                else
+                {
+                    MessageBox.Show("Erreur : la page météo n'a pas des dimensions valides pour l'affichage.");
+                }
+
+                // Attendre avant de passer à l'image suivante
+                await Task.Delay(5000); // Délai de 10 secondes pour afficher la météo
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de l'affichage de la météo : {ex.Message}");
             }
         }
 

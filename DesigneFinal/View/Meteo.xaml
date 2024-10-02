@@ -1,0 +1,63 @@
+﻿<Page x:Class="DesigneFinal.View.Meteo"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:DesigneFinal.View"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="600"
+      Title="Meteo">
+
+    <!-- Grid principal pour la météo -->
+    <Grid Background="White">
+        <!-- Title -->
+        <TextBlock Text="Météo Annecy" FontSize="28" FontWeight="Bold" 
+                   HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,0,0" Foreground="DarkBlue" />
+
+        <!-- Grid pour les prévisions météorologiques -->
+        <Grid Margin="10,60,10,10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <!-- Définitions des colonnes -->
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Day 1 (Today) -->
+            <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                <TextBlock x:Name="TB_Aujourdhui" Text="Aujourd'hui" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" />
+                <Image x:Name="jour0" Width="100" Height="100" Margin="5"/>
+                <TextBlock x:Name="TB_temperature" Text="21°C" FontSize="16" FontWeight="Bold" />
+                <TextBlock x:Name="TB_condition" Text="Éclaircies" FontSize="14" Foreground="DarkGray" />
+                <TextBlock x:Name="TB_Humidité" Text="60% d'humidité" FontSize="12" />
+                <TextBlock x:Name="TB_bas" Text="Min : 9°C" FontSize="12" />
+                <TextBlock x:Name="TB_haut" Text="Max : 21°C" FontSize="12" />
+            </StackPanel>
+
+            <!-- Day 2 (Tomorrow) -->
+            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                <TextBlock x:Name="TB_Demain" Text="Demain" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" />
+                <Image x:Name="jour1" Width="100" Height="100" Margin="5"/>
+                <TextBlock x:Name="TB_basD" Text="Min : 7°C" FontSize="12" />
+                <TextBlock x:Name="TB_hautD" Text="Max : 14°C" FontSize="12" />
+            </StackPanel>
+
+            <!-- Day 3 (Day After Tomorrow) -->
+            <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                <TextBlock x:Name="TB_ApresDemain" Text="Après-demain" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" />
+                <Image x:Name="jour2" Width="100" Height="100" Margin="5"/>
+                <TextBlock x:Name="TB_basAD" Text="Min : 6°C" FontSize="12" />
+                <TextBlock x:Name="TB_hautAD" Text="Max : 12°C" FontSize="12" />
+            </StackPanel>
+
+            <!-- Day 4 (Three Days Later) -->
+            <StackPanel Grid.Column="3" HorizontalAlignment="Center">
+                <TextBlock x:Name="TB_Dans3Jours" Text="Dans 3 Jours" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" />
+                <Image x:Name="jour3" Width="100" Height="100" Margin="5"/>
+                <TextBlock x:Name="TB_bas3J" Text="Min : 6°C" FontSize="12" />
+                <TextBlock x:Name="TB_haut3J" Text="Max : 14°C" FontSize="12" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Page>
