@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
@@ -19,7 +20,7 @@ namespace DesigneFinal.View
         private bool isImageLoopRunning = false;
         private DispatcherTimer timer;
         private object previousContent; // Variable pour stocker la vue précédente
-        private int iterationCount = 0; // Compteur d'itérations
+        private List<string> currentImages; // Liste des images actuellement affichées
 
         // Modification du constructeur pour accepter 'previousContent'
         public SecondView(string salleName, object previousContent)
@@ -27,6 +28,8 @@ namespace DesigneFinal.View
             InitializeComponent();
             this.salleName = salleName;
             this.previousContent = previousContent; // Stocker la vue précédente
+            currentImages = new List<string>(); // Initialiser la liste des images
+
             LoadImages(salleName);
 
             // Initialisation du timer pour l'heure et la date
@@ -53,6 +56,26 @@ namespace DesigneFinal.View
             string salleUrl = $"{baseImageUrl}{salleName}/";
             string listUrl = $"{salleUrl}image.json";
 
+            await FetchAndDisplayImages(salleUrl, listUrl);
+        }
+
+        private async Task FetchAndDisplayImages(string salleUrl, string listUrl)
+        {
+            List<string> availableImages = await GetAvailableImages(listUrl);
+
+            if (availableImages == null || availableImages.Count == 0)
+            {
+                MessageBox.Show("Aucune image disponible pour la salle sélectionnée.");
+                return;
+            }
+
+            currentImages = availableImages; // Mettre à jour la liste des images actuelles
+            isImageLoopRunning = true;
+            await DisplayImagesLoop(salleUrl, listUrl);
+        }
+
+        private async Task<List<string>> GetAvailableImages(string listUrl)
+        {
             List<string> availableImages = new List<string>();
 
             try
@@ -65,44 +88,37 @@ namespace DesigneFinal.View
                         string responseBody = await response.Content.ReadAsStringAsync();
                         availableImages = JsonConvert.DeserializeObject<List<string>>(responseBody);
 
-                        if (availableImages == null || availableImages.Count == 0)
-                        {
-                            MessageBox.Show("Aucune image disponible pour la salle sélectionnée.");
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show($"Erreur HTTP lors de la récupération des images : {response.ReasonPhrase}");
-                        return;
+                        // Filtrer les entrées indésirables
+                        availableImages = availableImages
+                            .Where(img => !string.IsNullOrWhiteSpace(img) && img != "." && img != "..")
+                            .ToList();
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur lors du chargement des images : {ex.Message}");
-                return;
+                MessageBox.Show($"Erreur lors de la récupération des images : {ex.Message}");
             }
 
-            isImageLoopRunning = true;
-            await DisplayImagesLoop(availableImages, salleUrl);
+            return availableImages;
         }
 
-        private async Task DisplayImagesLoop(List<string> availableImages, string salleUrl)
+        private async Task DisplayImagesLoop(string salleUrl, string listUrl)
         {
             while (isImageLoopRunning)
             {
                 // 1. Afficher la météo en premier
                 await DisplayMeteo();
-                await Task.Delay(5000); // Délai de 10 secondes pour la météo
+                await Task.Delay(2000); // Délai de 5 secondes pour la météo
 
                 // 2. Ensuite, afficher les images
-                foreach (var imageFileName in availableImages)
+                foreach (var imageFileName in currentImages)
                 {
                     string imageUrl = $"{salleUrl}{imageFileName}";
 
                     try
                     {
+                        // Vérifier si l'image existe avant de la charger
                         using (HttpClient client = new HttpClient())
                         {
                             HttpResponseMessage response = await client.GetAsync(imageUrl);
@@ -120,14 +136,38 @@ namespace DesigneFinal.View
                                 }
                                 imageControl.Source = bitmap;
                             }
-                            await Task.Delay(3000); // Délai de 10 secondes pour chaque image
+                            else
+                            {
+                                // Si l'image n'est pas trouvée, la supprimer de la liste actuelle
+                                MessageBox.Show($"Image non trouvée : {imageUrl}");
+                                currentImages.Remove(imageFileName);
+                                break; // Sortir de la boucle pour éviter des exceptions
+                            }
                         }
+                        await Task.Delay(3000); // Délai de 3 secondes pour chaque image
                     }
                     catch (Exception ex)
                     {
                         MessageBox.Show($"Erreur lors de la récupération de l'image : {ex.Message}");
-                        return;
+                        // Retirer l'image de la liste si une erreur se produit
+                        currentImages.Remove(imageFileName);
+                        break; // Sortir de la boucle pour éviter des exceptions
                     }
+                }
+
+                // Vérifiez les nouvelles images après avoir affiché toutes les images
+                var availableImages = await GetAvailableImages(listUrl);
+                if (availableImages != null)
+                {
+                    // Vérifiez si des images ont été supprimées
+                    foreach (var image in currentImages.ToArray())
+                    {
+                        if (!availableImages.Contains(image))
+                        {
+                            currentImages.Remove(image); // Supprimer l'image si elle n'est plus disponible
+                        }
+                    }
+                    currentImages.AddRange(availableImages.Where(img => !currentImages.Contains(img))); // Ajouter les nouvelles images
                 }
             }
         }
@@ -164,7 +204,7 @@ namespace DesigneFinal.View
                 }
 
                 // Attendre avant de passer à l'image suivante
-                await Task.Delay(5000); // Délai de 10 secondes pour afficher la météo
+                await Task.Delay(2000); // Délai de 5 secondes pour afficher la météo
             }
             catch (Exception ex)
             {
