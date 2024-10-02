@@ -177,7 +177,7 @@ namespace DesigneFinal.View
         {
             try
             {
-                // Créer une instance de la page météo
+                // Créer une instance de la page météoe
                 Meteo meteoPage = new Meteo();
 
                 // Récupérer les données météo pour Annecy
