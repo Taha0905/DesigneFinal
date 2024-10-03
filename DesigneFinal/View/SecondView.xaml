@@ -47,7 +47,7 @@
             </Grid>
         </Border>
 
-        <!-- Left Side: Information Panel with adjusted icon sizes and layout -->
+        <!-- Left Side: Information Panel -->
         <Border Grid.Row="1" Background="White" CornerRadius="10" BorderBrush="#ddd" BorderThickness="4" Padding="10" Margin="10,10,558,10">
             <Grid>
                 <Grid.RowDefinitions>
@@ -85,14 +85,16 @@
             </Grid>
         </Border>
 
-        <!-- Main Content Area (For Image Display) -->
+        <!-- Main Content Area (For Image and Video Display) -->
         <Border Grid.Row="1" CornerRadius="10" Background="White" Padding="10" Margin="257,10,10,10" BorderBrush="#ddd" BorderThickness="4">
-            <Image x:Name="imageControl" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" />
+            <Grid>
+                <Image x:Name="imageControl" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Visibility="Visible" />
+                <MediaElement x:Name="mediaControl" Width="400" Height="300" LoadedBehavior="Manual" UnloadedBehavior="Stop" Visibility="Collapsed" />
+            </Grid>
         </Border>
 
         <!-- Footer Information Area -->
         <Border Grid.Row="2" BorderBrush="#333" BorderThickness="2" CornerRadius="10" Padding="10" Background="White" Margin="10">
-
         </Border>
         <TextBlock Grid.Row="2" Name="TBinfo" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold" Foreground="#FFA1A1A1" Text="Informations à afficher ici" FontStyle="Italic" Margin="21,0,0,0" />
     </Grid>
