@@ -96,6 +96,6 @@
         <!-- Footer Information Area -->
         <Border Grid.Row="2" BorderBrush="#333" BorderThickness="2" CornerRadius="10" Padding="10" Background="White" Margin="10">
         </Border>
-        <TextBlock Grid.Row="2" Name="TBinfo" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold" Foreground="#FFA1A1A1" Text="Informations à afficher ici" FontStyle="Italic" Margin="21,0,0,0" />
+        <TextBlock Grid.Row="2" Name="TBinfo" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold" Foreground="#FF312D2D" Text="Informations à afficher ici" FontStyle="Italic" Margin="21,0,0,0" Width="749" />
     </Grid>
 </Page>

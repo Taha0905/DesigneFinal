@@ -1,15 +1,16 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
-using Newtonsoft.Json;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace DesigneFinal.View
 {
@@ -18,8 +19,11 @@ namespace DesigneFinal.View
         private string salleName;
         private bool isImageLoopRunning = false;
         private DispatcherTimer timer;
+        private DispatcherTimer quoteTimer;
         private object previousContent; // Variable pour stocker la vue précédente
         private List<string> currentImages; // Liste des images actuellement affichées
+        private List<string> quotes; // Liste des citations
+        private int currentQuoteIndex = 0; // Index de la citation actuelle
 
         public SecondView(string salleName, object previousContent)
         {
@@ -27,10 +31,66 @@ namespace DesigneFinal.View
             this.salleName = salleName;
             this.previousContent = previousContent;
             currentImages = new List<string>();
+            quotes = new List<string>();
 
             LoadImages(salleName);
+            LoadQuotes(); // Charger les citations
+            InitializeDateTime(); // Initialiser l'affichage de la date et de l'heure
+            InitializeQuoteTimer(); // Initialiser le timer pour les citations
+        }
 
-            InitializeDateTime();
+        private async void LoadQuotes()
+        {
+            string quoteUrl = "https://quentinvrns.fr/Document/citation.txt";
+
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    // Charger le contenu du fichier de citations
+                    string content = await client.GetStringAsync(quoteUrl);
+                    // Utiliser une expression régulière pour extraire chaque citation
+                    var matches = Regex.Matches(content, @"\d+\.\s""([^""]+)""\s–\s(.+)");
+
+                    foreach (Match match in matches)
+                    {
+                        if (match.Groups.Count >= 3)
+                        {
+                            // Reconstituer la citation sans le numéro
+                            string citation = $"{match.Groups[1].Value} – {match.Groups[2].Value}";
+                            quotes.Add(citation);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de la récupération des citations : {ex.Message}");
+                TBinfo.Text = "Impossible de charger les citations.";
+            }
+
+            // Afficher la première citation si disponible
+            if (quotes.Count > 0)
+            {
+                TBinfo.Text = quotes[currentQuoteIndex];
+            }
+        }
+
+        private void InitializeQuoteTimer()
+        {
+            quoteTimer = new DispatcherTimer();
+            quoteTimer.Interval = TimeSpan.FromHours(12); // Changer toutes les 12 heures
+            quoteTimer.Tick += QuoteTimer_Tick;
+            quoteTimer.Start();
+        }
+
+        private void QuoteTimer_Tick(object sender, EventArgs e)
+        {
+            if (quotes.Count == 0) return;
+
+            // Passer à la citation suivante
+            currentQuoteIndex = (currentQuoteIndex + 1) % quotes.Count;
+            TBinfo.Text = quotes[currentQuoteIndex];
         }
 
         private void InitializeDateTime()
@@ -190,7 +250,7 @@ namespace DesigneFinal.View
                 meteoPage.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
                 meteoPage.Arrange(new Rect(0, 0, meteoPage.DesiredSize.Width, meteoPage.DesiredSize.Height));
 
-                if (meteoPage.ActualWidth > 0 && meteoPage.ActualHeight > 0)
+                if (meteoPage.ActualWidth > 0 && meteoPage.DesiredSize.Height > 0)
                 {
                     RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int)meteoPage.ActualWidth, (int)meteoPage.ActualHeight, 96, 96, PixelFormats.Pbgra32);
                     renderTargetBitmap.Render(meteoPage);
