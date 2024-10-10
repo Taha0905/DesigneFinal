@@ -8,9 +8,6 @@ using DesigneFinal.View;
 
 namespace DesigneFinal
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private string selectedSalle;
@@ -21,9 +18,9 @@ namespace DesigneFinal
             LoadSalles();
         }
 
-        public object previousContent;
+        public object previousContent; // Variable pour stocker la vue précédente
 
-
+        // Classe pour représenter les salles
         public class Salle
         {
             public int Id { get; set; }
@@ -31,6 +28,7 @@ namespace DesigneFinal
             public int EtageId { get; set; }
         }
 
+        // Fonction pour charger les salles depuis l'API
         private async void LoadSalles()
         {
             string url = "https://quentinvrns.alwaysdata.net/getAllClasse";
@@ -54,6 +52,7 @@ namespace DesigneFinal
                         return;
                     }
 
+                    // Remplir le ComboBox avec les salles
                     salleComboBox.Items.Clear();
                     foreach (var salle in salles)
                     {
@@ -67,11 +66,13 @@ namespace DesigneFinal
             }
         }
 
+        // Gestion de la sélection dans le ComboBox
         private void salleComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             selectedSalle = salleComboBox.SelectedItem as string;
         }
 
+        // Gestion du clic sur le bouton de validation
         private void ValidateButton_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(selectedSalle))
