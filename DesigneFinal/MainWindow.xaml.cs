@@ -88,5 +88,10 @@ namespace DesigneFinal
             SecondView secondView = new SecondView(selectedSalle, previousContent);
             this.Content = secondView;
         }
+
+        private void QuitButton_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
     }
 }

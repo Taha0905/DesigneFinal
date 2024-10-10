@@ -22,6 +22,8 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <!-- Nouvelle ligne pour le bouton quitter -->
         </Grid.RowDefinitions>
 
         <!-- Header Title -->
@@ -46,6 +48,19 @@
         <Button Grid.Row="4" Name="validateButton" Content="Connexion" HorizontalAlignment="Center" VerticalAlignment="Center" 
                 Width="150" Height="50" FontSize="18" Background="#4744ba" Foreground="White" BorderThickness="0" 
                 Margin="0,20" Cursor="Hand" Click="ValidateButton_Click">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}" CornerRadius="20" BorderThickness="0">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+
+        <!-- Quit Button -->
+        <Button Grid.Row="5" Name="quitButton" Content="Quitter" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                Width="150" Height="50" FontSize="18" Background="#FF3B3B" Foreground="White" BorderThickness="0" 
+                Margin="0,20" Cursor="Hand" Click="QuitButton_Click">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Border Background="{TemplateBinding Background}" CornerRadius="20" BorderThickness="0">
