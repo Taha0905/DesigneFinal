@@ -63,8 +63,8 @@
                         <TextBlock Text="Capteur de température :" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,5" HorizontalAlignment="Center"/>
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                             <TextBlock Text="💧" FontSize="40" HorizontalAlignment="Center" Foreground="#87CEEB" Margin="0,10"/>
-                            <TextBlock Text="Température : 15°C" FontWeight="Bold" FontSize="18" Foreground="White" HorizontalAlignment="Center" Margin="0,5"/>
-                            <TextBlock Text="Humidité : 20%" Foreground="White" HorizontalAlignment="Center"/>
+                            <TextBlock Name="TBtemp" Text="Température : 15°C" FontWeight="Bold" FontSize="18" Foreground="White" HorizontalAlignment="Center" Margin="0,5"/>
+                            <TextBlock Name="TBhum" Text="Humidité : 20%" Foreground="White" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </StackPanel>
 
@@ -73,7 +73,7 @@
                         <TextBlock Text="Capteur de son :" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,5" HorizontalAlignment="Center"/>
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                             <TextBlock Text="🔊" FontSize="40" HorizontalAlignment="Center" Foreground="#FFD700" Margin="0,10"/>
-                            <TextBlock Text="Son : 40dB" FontWeight="Bold" FontSize="18" Foreground="White" HorizontalAlignment="Center" Margin="0,5"/>
+                            <TextBlock Name="TBson" Text="Son : 40dB" FontWeight="Bold" FontSize="18" Foreground="White" HorizontalAlignment="Center" Margin="0,5"/>
                             <TextBlock Text="Niveau sonore" Foreground="White" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </StackPanel>
@@ -83,8 +83,8 @@
                         <TextBlock Text="Capteur de qualité de l'air :" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,5" HorizontalAlignment="Center"/>
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                             <TextBlock Text="🌫️" FontSize="40" HorizontalAlignment="Center" Foreground="#32CD32" Margin="0,10"/>
-                            <TextBlock Text="PM2.5: Bonne" FontWeight="Bold" FontSize="18" Foreground="White" HorizontalAlignment="Center" Margin="0,5"/>
-                            <TextBlock Text="PM10 : Faibles" Foreground="White" HorizontalAlignment="Center"/>
+                            <TextBlock Name="TBPM2" Text="PM2.5: Bonne" FontWeight="Bold" FontSize="18" Foreground="White" HorizontalAlignment="Center" Margin="0,5"/>
+                            <TextBlock Name="TBPM10" Text="PM10 : Faibles" Foreground="White" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
