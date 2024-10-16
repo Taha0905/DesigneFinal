@@ -64,7 +64,7 @@
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                             <TextBlock Text="💧" FontSize="40" HorizontalAlignment="Center" Foreground="#87CEEB" Margin="0,10"/>
                             <TextBlock Name="TBtemp" Text="Température : 15°C" FontWeight="Bold" FontSize="18" Foreground="White" HorizontalAlignment="Center" Margin="0,5"/>
-                            <TextBlock Name="TBhum" Text="Humidité : 20%" Foreground="White" HorizontalAlignment="Center"/>
+                            <TextBlock Name="TBhum" Text="Humidité : 20%" Foreground="White" HorizontalAlignment="Center" FontSize="18"/>
                         </StackPanel>
                     </StackPanel>
 
@@ -84,7 +84,7 @@
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                             <TextBlock Text="🌫️" FontSize="40" HorizontalAlignment="Center" Foreground="#32CD32" Margin="0,10"/>
                             <TextBlock Name="TBPM2" Text="PM2.5: Bonne" FontWeight="Bold" FontSize="18" Foreground="White" HorizontalAlignment="Center" Margin="0,5"/>
-                            <TextBlock Name="TBPM10" Text="PM10 : Faibles" Foreground="White" HorizontalAlignment="Center"/>
+                            <TextBlock Name="TBPM10" Text="PM10 : Faibles" Foreground="White" HorizontalAlignment="Center" FontSize="18"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
@@ -100,7 +100,7 @@
         </Grid>
 
         <!-- Footer Information Area -->
-        <Border Grid.Row="1" Background="#333" Padding="10"  Opacity="0.85">
+        <Border Grid.Row="1" Background="#333" Padding="10"  Opacity="0.85" Margin="0,10,0,10">
             <TextBlock Name="TBinfo" HorizontalAlignment="Left" VerticalAlignment="Center" 
                        FontSize="18" FontWeight="SemiBold" Foreground="White" Text="Informations dynamiques à afficher ici..." 
                        FontStyle="Italic" Margin="20,0,0,0" />

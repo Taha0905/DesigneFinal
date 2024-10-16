@@ -91,7 +91,7 @@ namespace DesigneFinal
 
         private void QuitButton_Click(object sender, RoutedEventArgs e)
         {
-            Application.Current.Shutdown();
+            Environment.Exit(0); // Arrête complètement le programme
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,11 +12,14 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using uPLibrary.Networking.M2Mqtt;
+using uPLibrary.Networking.M2Mqtt.Messages;
 
 namespace DesigneFinal.View
 {
     public partial class SecondView : Page
     {
+        private MqttClient client;
         private string salleName;
         private bool isImageLoopRunning = false;
         private DispatcherTimer timer;
@@ -37,6 +41,82 @@ namespace DesigneFinal.View
             LoadQuotes(); // Charger les citations
             InitializeDateTime(); // Initialiser l'affichage de la date et de l'heure
             InitializeQuoteTimer(); // Initialiser le timer pour les citations
+
+            // Initialiser le client MQTT pour la récupération des valeurs des capteurs
+            InitializeMqttClient();
+        }
+
+        private void InitializeMqttClient()
+        {
+            string brokerAddress = "172.31.254.123"; // Adresse de votre broker
+            client = new MqttClient(brokerAddress);
+
+            // Abonnement à l'événement de réception de message
+            client.MqttMsgPublishReceived += Client_MqttMsgPublishReceived;
+
+            string clientId = Guid.NewGuid().ToString();
+            client.Connect(clientId, "Taha", "Taha"); // Connexion avec identifiants
+
+            // Abonnement aux topics des capteurs
+            client.Subscribe(new string[] {
+                "Batiment_3/1er/KM_102/Afficheur_n_1/Capteur_temperature_et_humidité",
+                "Batiment_3/1er/KM_102/Afficheur_n_1/Capteur_de_CO2",
+                "Batiment_3/1er/KM_102/Afficheur_n_1/Capteur_de_son"
+            },
+            new byte[] { MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE });
+        }
+
+        private void Client_MqttMsgPublishReceived(object sender, MqttMsgPublishEventArgs e)
+        {
+            string message = Encoding.UTF8.GetString(e.Message);
+            string topic = e.Topic;
+
+            Dispatcher.Invoke(() =>
+            {
+                if (topic.Contains("Capteur_temperature_et_humidité"))
+                {
+                    string temperature = ExtractValue(message, "Temp", "C");
+                    string humidity = ExtractValue(message, "Humidity", "%");
+
+                    TBtemp.Text = $"Température {temperature} °C";
+                    TBhum.Text = $"Humidité {humidity}%";
+                }
+                else if (topic.Contains("Capteur_de_CO2"))
+                {
+                    string pm25 = ExtractValue(message, "PM2.5", "microg/m³");
+                    string pm10 = ExtractValue(message, "PM10", "microg/m³");
+
+                    TBPM2.Text = $"PM2.5{pm25} µg/m³";
+                    TBPM10.Text = $"PM10{pm10} µg/m³";
+                }
+                else if (topic.Contains("Capteur_de_son"))
+                {
+                    TBson.Text = $"Son : {message} dB";
+                }
+            });
+        }
+
+        private string ExtractValue(string message, string key, string delimiter)
+        {
+            try
+            {
+                if (message.Contains(key) && message.Contains(delimiter))
+                {
+                    int startIndex = message.IndexOf(key) + key.Length;
+                    int endIndex = message.IndexOf(delimiter, startIndex);
+
+                    if (startIndex >= 0 && endIndex > startIndex)
+                    {
+                        return message.Substring(startIndex, endIndex - startIndex).Trim();
+                    }
+                }
+
+                return "N/A";
+            }
+            catch
+            {
+                return "N/A";
+            }
         }
 
         private async void LoadQuotes()
@@ -47,16 +127,13 @@ namespace DesigneFinal.View
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    // Charger le contenu du fichier de citations
                     string content = await client.GetStringAsync(quoteUrl);
-                    // Utiliser une expression régulière pour extraire chaque citation
                     var matches = Regex.Matches(content, @"\d+\.\s""([^""]+)""\s–\s(.+)");
 
                     foreach (Match match in matches)
                     {
                         if (match.Groups.Count >= 3)
                         {
-                            // Reconstituer la citation sans le numéro
                             string citation = $"{match.Groups[1].Value} – {match.Groups[2].Value}";
                             quotes.Add(citation);
                         }
@@ -69,7 +146,6 @@ namespace DesigneFinal.View
                 TBinfo.Text = "Impossible de charger les citations.";
             }
 
-            // Afficher la première citation si disponible
             if (quotes.Count > 0)
             {
                 TBinfo.Text = quotes[currentQuoteIndex];
@@ -79,7 +155,7 @@ namespace DesigneFinal.View
         private void InitializeQuoteTimer()
         {
             quoteTimer = new DispatcherTimer();
-            quoteTimer.Interval = TimeSpan.FromHours(12); // Changer toutes les 12 heures
+            quoteTimer.Interval = TimeSpan.FromHours(12);
             quoteTimer.Tick += QuoteTimer_Tick;
             quoteTimer.Start();
         }
@@ -88,7 +164,6 @@ namespace DesigneFinal.View
         {
             if (quotes.Count == 0) return;
 
-            // Passer à la citation suivante
             currentQuoteIndex = (currentQuoteIndex + 1) % quotes.Count;
             TBinfo.Text = quotes[currentQuoteIndex];
         }
@@ -118,6 +193,7 @@ namespace DesigneFinal.View
 
         private async Task FetchAndDisplayImages(string salleUrl, string listUrl)
         {
+            // Récupération des images disponibles
             List<string> availableImages = await GetAvailableImages(listUrl);
 
             if (availableImages == null || availableImages.Count == 0)
@@ -128,8 +204,11 @@ namespace DesigneFinal.View
 
             currentImages = availableImages;
             isImageLoopRunning = true;
+
+            // Démarrer la boucle d'affichage des images
             await DisplayImagesLoop(salleUrl, listUrl);
         }
+
 
         private async Task<List<string>> GetAvailableImages(string listUrl)
         {
@@ -177,13 +256,11 @@ namespace DesigneFinal.View
 
                             mediaControl.Play();
 
-                            // Attendre que la durée de la vidéo soit disponible
                             while (!mediaControl.NaturalDuration.HasTimeSpan)
                             {
-                                await Task.Delay(100); // Attendre que la durée soit chargée
+                                await Task.Delay(100);
                             }
 
-                            // Utiliser la durée de la vidéo pour définir le délai
                             var videoDuration = mediaControl.NaturalDuration.TimeSpan;
                             await Task.Delay(videoDuration);
 
@@ -191,7 +268,6 @@ namespace DesigneFinal.View
                         }
                         else
                         {
-                            // Afficher l'image
                             using (HttpClient client = new HttpClient())
                             {
                                 HttpResponseMessage response = await client.GetAsync(mediaUrl);
@@ -212,7 +288,7 @@ namespace DesigneFinal.View
                                     mediaControl.Visibility = Visibility.Collapsed;
                                 }
                             }
-                            await Task.Delay(3000); // Délai de 3 secondes pour chaque image
+                            await Task.Delay(3000);
                         }
                     }
                     catch (Exception ex)
