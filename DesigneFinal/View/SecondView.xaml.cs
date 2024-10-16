@@ -46,25 +46,44 @@ namespace DesigneFinal.View
             InitializeMqttClient();
         }
 
-        private void InitializeMqttClient()
+        private async void InitializeMqttClient()
         {
-            string brokerAddress = "172.31.254.123"; // Adresse de votre broker
-            client = new MqttClient(brokerAddress);
+            var cancellationTokenSource = new System.Threading.CancellationTokenSource();
+            cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(7)); // Timeout après 7 secondes
 
-            // Abonnement à l'événement de réception de message
-            client.MqttMsgPublishReceived += Client_MqttMsgPublishReceived;
+            try
+            {
+                await Task.Run(() =>
+                {
+                    string brokerAddress = "172.31.254.123"; // Adresse de votre broker
+                    client = new MqttClient(brokerAddress);
 
-            string clientId = Guid.NewGuid().ToString();
-            client.Connect(clientId, "Taha", "Taha"); // Connexion avec identifiants
+                    // Abonnement à l'événement de réception de message
+                    client.MqttMsgPublishReceived += Client_MqttMsgPublishReceived;
 
-            // Abonnement aux topics des capteurs
-            client.Subscribe(new string[] {
+                    string clientId = Guid.NewGuid().ToString();
+                    client.Connect(clientId, "Taha", "Taha"); // Connexion avec identifiants
+
+                    // Abonnement aux topics des capteurs
+                    client.Subscribe(new string[] {
                 "Batiment_3/1er/KM_102/Afficheur_n_1/Capteur_temperature_et_humidité",
                 "Batiment_3/1er/KM_102/Afficheur_n_1/Capteur_de_CO2",
                 "Batiment_3/1er/KM_102/Afficheur_n_1/Capteur_de_son"
             },
-            new byte[] { MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE });
+                    new byte[] { MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE });
+
+                }, cancellationTokenSource.Token); // Utilisation du token pour l'annulation après le timeout
+            }
+            catch (OperationCanceledException)
+            {
+                MessageBox.Show("Connexion MQTT annulée après 7 secondes", "Timeout", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Connexion MQTT impossible : {ex.Message}", "Erreur de connexion", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
+
 
         private void Client_MqttMsgPublishReceived(object sender, MqttMsgPublishEventArgs e)
         {
