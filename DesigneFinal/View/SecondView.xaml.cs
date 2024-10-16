@@ -48,6 +48,12 @@ namespace DesigneFinal.View
 
         private async void InitializeMqttClient()
         {
+            if (client != null && client.IsConnected)
+            {
+                // Déjà connecté, ne pas essayer de se reconnecter
+                return;
+            }
+
             var cancellationTokenSource = new System.Threading.CancellationTokenSource();
             cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(7)); // Timeout après 7 secondes
 
