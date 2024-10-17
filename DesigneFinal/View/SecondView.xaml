@@ -8,7 +8,8 @@
       d:DesignHeight="1080" d:DesignWidth="1920"
       Title="SecondView">
 
-    <Grid>
+    <!-- Grid principal -->
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <!-- Ajouter une image de fond à votre Grid -->
         <Grid.Background>
             <ImageBrush ImageSource="/Image/fond.png" Stretch="UniformToFill" />
@@ -100,10 +101,14 @@
         </Grid>
 
         <!-- Footer Information Area -->
-        <Border Grid.Row="1" Background="#333" Padding="10"  Opacity="0.85" Margin="0,10,0,10">
+        <Border Grid.Row="1" Background="#333" Padding="10" Opacity="0.85" Margin="0,10,0,10" Panel.ZIndex="1">
             <TextBlock Name="TBinfo" HorizontalAlignment="Left" VerticalAlignment="Center" 
                        FontSize="18" FontWeight="SemiBold" Foreground="White" Text="Informations dynamiques à afficher ici..." 
                        FontStyle="Italic" Margin="20,0,0,0" />
         </Border>
+
+        <!-- Full-screen alert image -->
+        <Image x:Name="fullScreenAlertImage" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+               Visibility="Collapsed" Stretch="Fill" Panel.ZIndex="1000" Margin="0" />
     </Grid>
 </Page>

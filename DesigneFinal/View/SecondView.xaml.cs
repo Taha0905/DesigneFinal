@@ -24,6 +24,7 @@ namespace DesigneFinal.View
         private bool isImageLoopRunning = false;
         private DispatcherTimer timer;
         private DispatcherTimer quoteTimer;
+        private DispatcherTimer alertTimer; // Timer pour surveiller les alertes
         private object previousContent; // Variable pour stocker la vue précédente
         private List<string> currentImages; // Liste des images actuellement affichées
         private List<string> quotes; // Liste des citations
@@ -44,6 +45,9 @@ namespace DesigneFinal.View
 
             // Initialiser le client MQTT pour la récupération des valeurs des capteurs
             InitializeMqttClient();
+
+            // Initialiser la surveillance des alertes
+            InitializeAlertMonitoring();
         }
 
         private async void InitializeMqttClient()
@@ -89,7 +93,6 @@ namespace DesigneFinal.View
                 MessageBox.Show($"Connexion MQTT impossible : {ex.Message}", "Erreur de connexion", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
 
         private void Client_MqttMsgPublishReceived(object sender, MqttMsgPublishEventArgs e)
         {
@@ -233,7 +236,6 @@ namespace DesigneFinal.View
             // Démarrer la boucle d'affichage des images
             await DisplayImagesLoop(salleUrl, listUrl);
         }
-
 
         private async Task<List<string>> GetAvailableImages(string listUrl)
         {
@@ -383,5 +385,109 @@ namespace DesigneFinal.View
                 MessageBox.Show("Aucune page précédente trouvée.");
             }
         }
+
+        // Méthode pour initialiser la surveillance des alertes
+        private void InitializeAlertMonitoring()
+        {
+            alertTimer = new DispatcherTimer();
+            alertTimer.Interval = TimeSpan.FromSeconds(2); // Vérifie le fichier toutes les 5 secondes
+            alertTimer.Tick += AlertTimer_Tick;
+            alertTimer.Start();
+        }
+
+        private async void AlertTimer_Tick(object sender, EventArgs e)
+        {
+            string alertUrl = "https://quentinvrns.fr/Document/alerte.txt";
+
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    string alertContent = await client.GetStringAsync(alertUrl);
+
+                    if (alertContent.Contains("ALERTE INCENDIE"))
+                    {
+                        DisplayAlert("ALERTE INCENDIE");
+                    }
+                    else if (alertContent.Contains("ALERTE INTRUSION"))
+                    {
+                        DisplayAlert("ALERTE INTRUSION");
+                    }
+                    else if (alertContent.Contains("ALERTE EVACUATION AUTRE DANGER"))
+                    {
+                        DisplayAlert("ALERTE EVACUATION AUTRE DANGER");
+                    }
+                    else
+                    {
+                        // Si aucune alerte n'est active, on continue à afficher les images/vidéos
+                        ClearAlert();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de la récupération des alertes : {ex.Message}");
+            }
+        }
+
+
+        private void DisplayAlert(string alertType)
+        {
+            // Stopper l'affichage des images et vidéos
+            isImageLoopRunning = false;
+            mediaControl.Visibility = Visibility.Collapsed;
+            imageControl.Visibility = Visibility.Collapsed;
+
+            try
+            {
+                // Sélectionner l'image d'alerte en fonction du type d'alerte
+                string alertImagePath = string.Empty;
+
+                if (alertType.Contains("ALERTE INCENDIE"))
+                {
+                    alertImagePath = "pack://application:,,,/Image/incendie.png";
+                }
+                else if (alertType.Contains("ALERTE INTRUSION"))
+                {
+                    alertImagePath = "pack://application:,,,/Image/intrusion.png";
+                }
+                else if (alertType.Contains("ALERTE EVACUATION AUTRE DANGER"))
+                {
+                    alertImagePath = "pack://application:,,,/Image/evacuation.png";
+                }
+
+                // Afficher l'image d'alerte en plein écran si un chemin a été trouvé
+                if (!string.IsNullOrEmpty(alertImagePath))
+                {
+                    BitmapImage alertImage = new BitmapImage(new Uri(alertImagePath, UriKind.Absolute));
+                    fullScreenAlertImage.Source = alertImage;
+                    fullScreenAlertImage.Visibility = Visibility.Visible; // Rendre l'image visible
+
+                    // Étendre l'image sur tout l'écran
+                    fullScreenAlertImage.Stretch = Stretch.Fill;
+                }
+                else
+                {
+                    MessageBox.Show("Type d'alerte non pris en charge", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de l'affichage de l'image d'alerte : {ex.Message}");
+            }
+        }
+
+        private void ClearAlert()
+        {
+            // Redémarrer l'affichage des images/vidéos
+            isImageLoopRunning = true;
+
+            // Cacher l'image d'alerte plein écran
+            fullScreenAlertImage.Visibility = Visibility.Collapsed;
+
+            // Réinitialiser l'affichage des autres éléments
+            imageControl.Stretch = Stretch.Uniform; // Remettre l'étirement par défaut
+        }
+
     }
 }
