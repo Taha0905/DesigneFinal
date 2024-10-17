@@ -54,7 +54,6 @@ namespace DesigneFinal.View
         {
             if (client != null && client.IsConnected)
             {
-                // Déjà connecté, ne pas essayer de se reconnecter
                 return;
             }
 
@@ -76,13 +75,12 @@ namespace DesigneFinal.View
 
                     // Abonnement aux topics des capteurs
                     client.Subscribe(new string[] {
-                "Batiment_3/1er/KM_102/Afficheur_n_1/Capteur_temperature_et_humidité",
-                "Batiment_3/1er/KM_102/Afficheur_n_1/Capteur_de_CO2",
-                "Batiment_3/1er/KM_102/Afficheur_n_1/Capteur_de_son"
-            },
+                        "Batiment_3/1er/KM_102/Afficheur_n_1/Capteur_temperature_et_humidité",
+                        "Batiment_3/1er/KM_102/Afficheur_n_1/Capteur_de_CO2",
+                        "Batiment_3/1er/KM_102/Afficheur_n_1/Capteur_de_son"
+                    },
                     new byte[] { MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE });
-
-                }, cancellationTokenSource.Token); // Utilisation du token pour l'annulation après le timeout
+                }, cancellationTokenSource.Token);
             }
             catch (OperationCanceledException)
             {
@@ -114,8 +112,8 @@ namespace DesigneFinal.View
                     string pm25 = ExtractValue(message, "PM2.5", "microg/m³");
                     string pm10 = ExtractValue(message, "PM10", "microg/m³");
 
-                    TBPM2.Text = $"PM2.5{pm25} µg/m³";
-                    TBPM10.Text = $"PM10{pm10} µg/m³";
+                    TBPM2.Text = $"PM2.5 {pm25} µg/m³";
+                    TBPM10.Text = $"PM10 {pm10} µg/m³";
                 }
                 else if (topic.Contains("Capteur_de_son"))
                 {
@@ -221,7 +219,6 @@ namespace DesigneFinal.View
 
         private async Task FetchAndDisplayImages(string salleUrl, string listUrl)
         {
-            // Récupération des images disponibles
             List<string> availableImages = await GetAvailableImages(listUrl);
 
             if (availableImages == null || availableImages.Count == 0)
@@ -233,7 +230,6 @@ namespace DesigneFinal.View
             currentImages = availableImages;
             isImageLoopRunning = true;
 
-            // Démarrer la boucle d'affichage des images
             await DisplayImagesLoop(salleUrl, listUrl);
         }
 
@@ -295,6 +291,9 @@ namespace DesigneFinal.View
                         }
                         else
                         {
+                            // Animation de transition (fade-out) pour les images
+                            await FadeOutControl(imageControl);
+
                             using (HttpClient client = new HttpClient())
                             {
                                 HttpResponseMessage response = await client.GetAsync(mediaUrl);
@@ -310,12 +309,17 @@ namespace DesigneFinal.View
                                         bitmap.CacheOption = BitmapCacheOption.OnLoad;
                                         bitmap.EndInit();
                                     }
+
                                     imageControl.Source = bitmap;
                                     imageControl.Visibility = Visibility.Visible;
                                     mediaControl.Visibility = Visibility.Collapsed;
+
+                                    // Animation de transition (fade-in) pour les images
+                                    await FadeInControl(imageControl);
                                 }
                             }
-                            await Task.Delay(3000);
+
+                            await Task.Delay(3000); // Durée de l'affichage de l'image
                         }
                     }
                     catch (Exception ex)
@@ -340,6 +344,7 @@ namespace DesigneFinal.View
                 }
             }
         }
+
 
         private async Task DisplayMeteo()
         {
@@ -374,6 +379,32 @@ namespace DesigneFinal.View
             }
         }
 
+        private async Task FadeInControl(UIElement control)
+        {
+            control.Opacity = 0;
+            control.Visibility = Visibility.Visible;
+
+            for (double i = 0; i <= 1; i += 0.1)
+            {
+                control.Opacity = i;
+                await Task.Delay(20); // Réduit la durée du délai pour accélérer l'animation
+            }
+
+            control.Opacity = 1;
+        }
+
+        private async Task FadeOutControl(UIElement control)
+        {
+            for (double i = 1; i >= 0; i -= 0.1)
+            {
+                control.Opacity = i;
+                await Task.Delay(20); // Réduit la durée du délai pour accélérer l'animation
+            }
+
+            control.Opacity = 0;
+            control.Visibility = Visibility.Collapsed;
+        }
+
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
             if (previousContent != null)
@@ -386,11 +417,10 @@ namespace DesigneFinal.View
             }
         }
 
-        // Méthode pour initialiser la surveillance des alertes
         private void InitializeAlertMonitoring()
         {
             alertTimer = new DispatcherTimer();
-            alertTimer.Interval = TimeSpan.FromSeconds(2); // Vérifie le fichier toutes les 5 secondes
+            alertTimer.Interval = TimeSpan.FromSeconds(2); 
             alertTimer.Tick += AlertTimer_Tick;
             alertTimer.Start();
         }
@@ -419,7 +449,6 @@ namespace DesigneFinal.View
                     }
                     else
                     {
-                        // Si aucune alerte n'est active, on continue à afficher les images/vidéos
                         ClearAlert();
                     }
                 }
@@ -430,17 +459,14 @@ namespace DesigneFinal.View
             }
         }
 
-
         private void DisplayAlert(string alertType)
         {
-            // Stopper l'affichage des images et vidéos
             isImageLoopRunning = false;
             mediaControl.Visibility = Visibility.Collapsed;
             imageControl.Visibility = Visibility.Collapsed;
 
             try
             {
-                // Sélectionner l'image d'alerte en fonction du type d'alerte
                 string alertImagePath = string.Empty;
 
                 if (alertType.Contains("ALERTE INCENDIE"))
@@ -456,14 +482,12 @@ namespace DesigneFinal.View
                     alertImagePath = "pack://application:,,,/Image/evacuation.png";
                 }
 
-                // Afficher l'image d'alerte en plein écran si un chemin a été trouvé
                 if (!string.IsNullOrEmpty(alertImagePath))
                 {
                     BitmapImage alertImage = new BitmapImage(new Uri(alertImagePath, UriKind.Absolute));
                     fullScreenAlertImage.Source = alertImage;
-                    fullScreenAlertImage.Visibility = Visibility.Visible; // Rendre l'image visible
+                    fullScreenAlertImage.Visibility = Visibility.Visible;
 
-                    // Étendre l'image sur tout l'écran
                     fullScreenAlertImage.Stretch = Stretch.Fill;
                 }
                 else
@@ -479,15 +503,9 @@ namespace DesigneFinal.View
 
         private void ClearAlert()
         {
-            // Redémarrer l'affichage des images/vidéos
             isImageLoopRunning = true;
-
-            // Cacher l'image d'alerte plein écran
             fullScreenAlertImage.Visibility = Visibility.Collapsed;
-
-            // Réinitialiser l'affichage des autres éléments
-            imageControl.Stretch = Stretch.Uniform; // Remettre l'étirement par défaut
+            imageControl.Stretch = Stretch.Uniform;
         }
-
     }
 }
