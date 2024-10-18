@@ -9,7 +9,7 @@
         WindowState="Maximized"
         WindowStyle="None"
         ResizeMode="NoResize"
-        Background="#4744ba"
+        Background="#3B4252"
         Height="450"
         Width="800">
 
@@ -46,7 +46,7 @@
 
         <!-- Connection Button with Rounded Corners -->
         <Button Grid.Row="4" Name="validateButton" Content="Connexion" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                Width="150" Height="50" FontSize="18" Background="#4744ba" Foreground="White" BorderThickness="0" 
+                Width="150" Height="50" FontSize="18" Background="#3B4252" Foreground="White" BorderThickness="0" 
                 Margin="0,20" Cursor="Hand" Click="ValidateButton_Click">
             <Button.Template>
                 <ControlTemplate TargetType="Button">

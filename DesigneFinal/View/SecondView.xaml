@@ -8,12 +8,10 @@
       d:DesignHeight="1080" d:DesignWidth="1920"
       Title="SecondView">
 
+
+
     <!-- Grid principal -->
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <!-- Ajouter une image de fond à votre Grid -->
-        <Grid.Background>
-            <ImageBrush ImageSource="/Image/fond.png" Stretch="UniformToFill" />
-        </Grid.Background>
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#3B4252">
 
         <!-- Grid Row Definitions -->
         <Grid.RowDefinitions>
@@ -96,6 +94,8 @@
                 <Grid>
                     <Image x:Name="imageControl" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Visibility="Visible" />
                     <MediaElement x:Name="mediaControl" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" LoadedBehavior="Manual" UnloadedBehavior="Stop" Visibility="Collapsed" />
+
+                    <MediaElement x:Name="AlarmMediaElement" LoadedBehavior="Manual" UnloadedBehavior="Stop" Volume="1.0" Visibility="Collapsed" />
                 </Grid>
             </Border>
         </Grid>

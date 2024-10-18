@@ -1,0 +1,30 @@
+﻿<Page x:Class="DesigneFinal.View.MessagesView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      mc:Ignorable="d" 
+      d:DesignHeight="800" d:DesignWidth="1500"
+      Title="MessagesView">
+
+    <!-- Grid principal pour l'affichage des messages -->
+    <Grid Background="#F5F5F5" Margin="50">
+        <!-- Ajout d'une bordure et d'un ScrollViewer pour un meilleur design -->
+        <Border Background="White" BorderBrush="#D3D3D3" BorderThickness="2" CornerRadius="15" Padding="20">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- Titre pour la section des messages -->
+                    <TextBlock Text="Messages Actuels" FontSize="28" FontWeight="Bold" 
+                               Foreground="#333" Margin="0,0,0,20" 
+                               HorizontalAlignment="Center" />
+                    <TextBlock x:Name="TB_Messages" FontSize="22" FontWeight="Normal"
+                               TextWrapping="Wrap" Foreground="#555" 
+                               TextAlignment="Justify" 
+                               LineHeight="35" Width="1068" Height="548" Margin="0,50,0,0" />
+
+                    <!-- Bloc pour les messages -->
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</Page>

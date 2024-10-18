@@ -14,6 +14,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
+using uPLibrary.Networking.M2Mqtt.Exceptions;
+
 
 namespace DesigneFinal.View
 {
@@ -52,43 +54,50 @@ namespace DesigneFinal.View
 
         private async void InitializeMqttClient()
         {
-            if (client != null && client.IsConnected)
-            {
-                return;
-            }
-
-            var cancellationTokenSource = new System.Threading.CancellationTokenSource();
-            cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(7)); // Timeout après 7 secondes
-
             try
             {
+                if (client != null && client.IsConnected)
+                {
+                    return;
+                }
+
+                var cancellationTokenSource = new System.Threading.CancellationTokenSource();
+                cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(7)); // Timeout après 7 secondes
+
                 await Task.Run(() =>
                 {
-                    string brokerAddress = "172.31.254.123"; // Adresse de votre broker
-                    client = new MqttClient(brokerAddress);
+                    try
+                    {
+                        string brokerAddress = "TQN"; // Adresse de votre broker
+                        client = new MqttClient(brokerAddress);
 
-                    // Abonnement à l'événement de réception de message
-                    client.MqttMsgPublishReceived += Client_MqttMsgPublishReceived;
+                        // Abonnement à l'événement de réception de message
+                        client.MqttMsgPublishReceived += Client_MqttMsgPublishReceived;
 
-                    string clientId = Guid.NewGuid().ToString();
-                    client.Connect(clientId, "Taha", "Taha"); // Connexion avec identifiants
+                        string clientId = Guid.NewGuid().ToString();
+                        client.Connect(clientId, "Taha", "Taha"); // Connexion avec identifiants
 
-                    // Abonnement aux topics des capteurs
-                    client.Subscribe(new string[] {
-                        "Batiment_3/1er/KM_102/Afficheur_n_1/Capteur_temperature_et_humidité",
-                        "Batiment_3/1er/KM_102/Afficheur_n_1/Capteur_de_CO2",
-                        "Batiment_3/1er/KM_102/Afficheur_n_1/Capteur_de_son"
-                    },
-                    new byte[] { MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE });
+                        // Abonnement aux topics des capteurs
+                        client.Subscribe(new string[] {
+                    "Batiment_3/1er/KM_102/Afficheur_n_1/Capteur_temperature_et_humidité",
+                    "Batiment_3/1er/KM_102/Afficheur_n_1/Capteur_de_CO2",
+                    "Batiment_3/1er/KM_102/Afficheur_n_1/Capteur_de_son"
+                },
+                        new byte[] { MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE });
+                    }
+                    catch (MqttConnectionException)
+                    {
+                      
+                    }
                 }, cancellationTokenSource.Token);
             }
             catch (OperationCanceledException)
             {
-                MessageBox.Show("Connexion MQTT annulée après 7 secondes", "Timeout", MessageBoxButton.OK, MessageBoxImage.Warning);
+
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Connexion MQTT impossible : {ex.Message}", "Erreur de connexion", MessageBoxButton.OK, MessageBoxImage.Error);
+               
             }
         }
 
@@ -264,6 +273,9 @@ namespace DesigneFinal.View
             {
                 await DisplayMeteo();
                 await Task.Delay(2000);
+                // Ajoute DisplayMessages dans la boucle existante comme pour la météo
+                await DisplayMessages();
+                await Task.Delay(2000);
 
                 foreach (var mediaFileName in currentImages)
                 {
@@ -346,6 +358,44 @@ namespace DesigneFinal.View
         }
 
 
+        private async Task DisplayMessages()
+        {
+            try
+            {
+                MessagesView messagesPage = new MessagesView(salleName);
+                await Task.Delay(500);
+
+                // Animation de transition (fade-out) pour l'élément affiché avant
+                await FadeOutControl(imageControl);
+
+                messagesPage.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                messagesPage.Arrange(new Rect(0, 0, messagesPage.DesiredSize.Width, messagesPage.DesiredSize.Height));
+
+                if (messagesPage.ActualWidth > 0 && messagesPage.ActualHeight > 0)
+                {
+                    RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int)messagesPage.ActualWidth, (int)messagesPage.ActualHeight, 96, 96, PixelFormats.Pbgra32);
+                    renderTargetBitmap.Render(messagesPage);
+                    imageControl.Source = renderTargetBitmap;
+
+                    // Animation de transition (fade-in) pour les messages
+                    await FadeInControl(imageControl);
+
+                    imageControl.Visibility = Visibility.Visible;
+                    mediaControl.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    MessageBox.Show("Erreur lors de l'affichage des messages.");
+                }
+
+                await Task.Delay(5000);  // Temps d'affichage des messages
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de l'affichage des messages : {ex.Message}");
+            }
+        }
+
         private async Task DisplayMeteo()
         {
             try
@@ -355,6 +405,9 @@ namespace DesigneFinal.View
 
                 await Task.Delay(500);
 
+                // Animation de transition (fade-out) pour la météo
+                await FadeOutControl(imageControl);
+
                 meteoPage.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
                 meteoPage.Arrange(new Rect(0, 0, meteoPage.DesiredSize.Width, meteoPage.DesiredSize.Height));
 
@@ -363,6 +416,10 @@ namespace DesigneFinal.View
                     RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int)meteoPage.ActualWidth, (int)meteoPage.ActualHeight, 96, 96, PixelFormats.Pbgra32);
                     renderTargetBitmap.Render(meteoPage);
                     imageControl.Source = renderTargetBitmap;
+
+                    // Animation de transition (fade-in) pour la météo
+                    await FadeInControl(imageControl);
+
                     imageControl.Visibility = Visibility.Visible;
                     mediaControl.Visibility = Visibility.Collapsed;
                 }
@@ -459,9 +516,16 @@ namespace DesigneFinal.View
             }
         }
 
+        //ALERTE
+
+        private MediaPlayer alarmPlayer = new MediaPlayer();
+
+        private bool isAlertActive = false;  // Indicateur pour savoir si une alerte est active
+        private bool isAlarmPlaying = false;
+
         private void DisplayAlert(string alertType)
         {
-            isImageLoopRunning = false;
+            isAlertActive = true;
             mediaControl.Visibility = Visibility.Collapsed;
             imageControl.Visibility = Visibility.Collapsed;
 
@@ -487,8 +551,14 @@ namespace DesigneFinal.View
                     BitmapImage alertImage = new BitmapImage(new Uri(alertImagePath, UriKind.Absolute));
                     fullScreenAlertImage.Source = alertImage;
                     fullScreenAlertImage.Visibility = Visibility.Visible;
-
                     fullScreenAlertImage.Stretch = Stretch.Fill;
+
+                    // Jouer le son d'alarme si ce n'est pas déjà en cours
+                    if (!isAlarmPlaying)
+                    {
+                        PlayAlarmSound();
+                        isAlarmPlaying = true;
+                    }
                 }
                 else
                 {
@@ -501,11 +571,43 @@ namespace DesigneFinal.View
             }
         }
 
+        private void PlayAlarmSound()
+        {
+            try
+            {
+                // Utiliser l'URL distante pour le fichier audio
+                string soundUrl = "https://quentinvrns.fr/Document/alarme.wav";
+
+                // Définir la source du MediaElement pour lire l'alarme
+                AlarmMediaElement.Source = new Uri(soundUrl, UriKind.Absolute);
+                AlarmMediaElement.Volume = 1.0; // Assurez-vous que le volume est à 100 %
+
+                // Jouer l'alarme
+                AlarmMediaElement.Play();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de la lecture du son d'alarme : {ex.Message}");
+            }
+        }
+
         private void ClearAlert()
         {
-            isImageLoopRunning = true;
+            isAlertActive = false;
             fullScreenAlertImage.Visibility = Visibility.Collapsed;
             imageControl.Stretch = Stretch.Uniform;
+
+            // Arrêter le son d'alarme
+            if (isAlarmPlaying)
+            {
+                StopAlarmSound();
+                isAlarmPlaying = false;
+            }
+        }
+
+        private void StopAlarmSound()
+        {
+            AlarmMediaElement.Stop();
         }
     }
 }

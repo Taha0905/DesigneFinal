@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Audio\alarme.wav" />
     <None Remove="Image\evacuation.png" />
     <None Remove="Image\fond.png" />
     <None Remove="Image\image.png" />
@@ -24,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Audio\alarme.wav" />
     <Resource Include="Image\evacuation.png" />
     <Resource Include="Image\fond.png" />
     <Resource Include="Image\image.png" />
